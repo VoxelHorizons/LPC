@@ -24,9 +24,23 @@ final class PaperChatListener implements Listener {
 	public void onChat(final AsyncChatEvent event) {
 		final Player player = event.getPlayer();
 		final String format = plugin.buildFormat(player);
-		final Component message = LEGACY.deserialize(plugin.processMessage(player, LEGACY.serialize(event.message())));
 
-		event.message(message);
+		/*
+		 * Preserve Paper's original player message by default. Replacing
+		 * event.message(...) causes LPC to substitute the client-supplied
+		 * message component, which prevents recipients from treating the
+		 * rendered chat as an unmodified signed player message.
+		 *
+		 * Servers that explicitly opt out of signature preservation can keep
+		 * the historic LPC behaviour for player-entered colour/hex codes.
+		 */
+		if (!plugin.preserveSignedChat()) {
+			final Component processedMessage = LEGACY.deserialize(
+					plugin.processMessage(player, LEGACY.serialize(event.message()))
+			);
+			event.message(processedMessage);
+		}
+
 		event.renderer(new ChatRenderer() {
 			@Override
 			public Component render(final Player source, final Component sourceDisplayName, final Component message, final Audience viewer) {
