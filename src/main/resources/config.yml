@@ -23,6 +23,21 @@
 #
 # More information: https://www.spigotmc.org/resources/68965
 
+# Paper secure-chat handling.
+#
+# When enabled (recommended/default), LPC keeps Paper's original player message
+# component untouched and only decorates it using the chat renderer. This allows
+# the original client-signed message to remain associated with the delivered chat.
+#
+# Player-entered LPC colour codes such as &aHello or &#ff0000Hello cannot be
+# transformed without changing the content the client originally signed, so those
+# codes are left untouched while signature preservation is enabled.
+#
+# Set this to false only if you prefer LPC's legacy player-message colour-code
+# processing over signed-message preservation.
+secure-chat:
+  preserve-signatures: true
+
 chat-format: "{prefix}{name}&r: {message}"
 
 # Examples:
