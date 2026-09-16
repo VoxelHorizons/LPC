@@ -42,6 +42,9 @@ public final class LPC extends JavaPlugin implements Listener {
 		try {
 			Class.forName("io.papermc.paper.event.player.AsyncChatEvent");
 			getServer().getPluginManager().registerEvents(new PaperChatListener(this), this);
+			if (preserveSignedChat()) {
+				getLogger().info("Secure chat preservation is enabled; LPC will not rewrite Paper player message content.");
+			}
 		} catch (ClassNotFoundException ignored) {
 			getServer().getPluginManager().registerEvents(this, this);
 		}
@@ -96,6 +99,7 @@ public final class LPC extends JavaPlugin implements Listener {
 			sender.sendMessage(colorize("&7Message-color: &f" + (messageColor != null ? messageColor : "&cnone")));
 			sender.sendMessage(colorize("&7Group format: &f" + (getConfig().getString("group-formats." + debugMeta.getPrimaryGroup()) != null ? "group-formats." + debugMeta.getPrimaryGroup() : "chat-format (default)")));
 			sender.sendMessage(colorize("&7PAPI: &f" + (getServer().getPluginManager().isPluginEnabled("PlaceholderAPI") ? "&ahooked" : "&cnot found")));
+			sender.sendMessage(colorize("&7Preserve signed chat: &f" + preserveSignedChat()));
 			sender.sendMessage(colorize("&7Has lpc.colorcodes: &f" + target.hasPermission("lpc.colorcodes")));
 			sender.sendMessage(colorize("&7Has lpc.rgbcodes: &f" + target.hasPermission("lpc.rgbcodes")));
 			return true;
@@ -132,6 +136,10 @@ public final class LPC extends JavaPlugin implements Listener {
 		String processedMessage = processMessage(player, message);
 
 		event.setFormat(format.replace("{message}", processedMessage).replace("%", "%%"));
+	}
+
+	boolean preserveSignedChat() {
+		return getConfig().getBoolean("secure-chat.preserve-signatures", true);
 	}
 
 	String buildFormat(final Player player) {
